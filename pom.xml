@@ -63,6 +63,7 @@
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core</artifactId>
       <version>2.10.1</version>
+      <scope>provided</scope>
     </dependency>
     <!-- Jersey + Spring -->
     <dependency>
@@ -112,26 +113,31 @@
     	<groupId>org.springframework</groupId>
     	<artifactId>spring-core</artifactId>
     	<version>3.0.7.RELEASE</version>
+        <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-beans</artifactId>
       <version>3.0.7.RELEASE</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
     	<groupId>org.springframework</groupId>
     	<artifactId>spring-web</artifactId>
     	<version>3.0.7.RELEASE</version>
+        <scope>provided</scope>
     </dependency>
     <dependency>
     	<groupId>org.springframework</groupId>
     	<artifactId>spring-context</artifactId>
     	<version>3.0.7.RELEASE</version>
+        <scope>provided</scope>
     </dependency>
     <dependency>
     	<groupId>org.springframework</groupId>
     	<artifactId>spring-aop</artifactId>
     	<version>3.0.7.RELEASE</version>
+        <scope>provided</scope>
     </dependency>
   </dependencies>
 </project>
