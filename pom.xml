@@ -11,19 +11,9 @@
     <dependencyManagement>
 	<dependencies>
 	    <dependency>
-	      <groupId>commons-cli</groupId>
-	      <artifactId>commons-cli</artifactId>
-	      <version>1.2</version>
-	    </dependency>
-	    <dependency>
-	      <groupId>org.apache.directory.studio</groupId>
-	      <artifactId>org.apache.commons.logging</artifactId>
+	      <groupId>commons-logging</groupId>
+	      <artifactId>commons-logging</artifactId>
 	      <version>1.1.1</version>
-	    </dependency>
-	    <dependency>
-	      <groupId>ant</groupId>
-	      <artifactId>ant-apache-log4j</artifactId>
-	      <version>1.6.5</version>
 	    </dependency>
 	    <dependency>
 	      <groupId>org.apache.camel</groupId>
