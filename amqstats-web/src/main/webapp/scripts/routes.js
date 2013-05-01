@@ -11,7 +11,11 @@ function showRouteProperties(id, tableId) {
 				if (prop != undefined && prop != null) {
 					row = $('<tr>');
 					row.append($('<td>', { html: prop.name}));
-					row.append($('<td>', { html: prop.value}));
+					if (prop.name == 'routeXml') {
+						row.append($('<td>').append($('<pre>').text(prop.value)));
+					} else {
+						row.append($('<td>', { html: prop.value}));
+					}
 					body.append(row);
 				}
 			});

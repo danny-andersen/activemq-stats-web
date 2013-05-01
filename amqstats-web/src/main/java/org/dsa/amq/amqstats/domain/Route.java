@@ -36,7 +36,7 @@ public class Route {
 	public static final String BACKLOG = "backLog";
 
 	private String id;
-	private NameValueAttr[] attrs;
+	List<NameValueAttr> routeAttrs;
 	private UriEnrichment uri;
 	
 	private UriEnrichmentFactoryService uriFactory;
@@ -47,20 +47,13 @@ public class Route {
 	}
 	
 	public NameValueAttr[] getAttrs() {
+		NameValueAttr[] attrs = routeAttrs.toArray(new NameValueAttr[routeAttrs.size()]);
 		return attrs;
 	}
 
-	public void setAttrs(NameValueAttr[] attrs) {
-		this.attrs = attrs;
-	}
-	
 	public void addAttrs(AttributeList attrs) {
-		List<NameValueAttr> routeAttrs = new ArrayList<NameValueAttr>();
-		if (this.attrs != null) {
-			//Add in current attrs
-			for (NameValueAttr attr : this.attrs) {
-				routeAttrs.add(attr);
-			}
+		if (this.routeAttrs == null) {
+			this.routeAttrs = new ArrayList<NameValueAttr>();
 		}
 		for (Attribute attr : attrs.asList()) {
 			String val = attr.getValue() != null ? attr.getValue().toString() : null;
@@ -76,7 +69,10 @@ public class Route {
 				routeAttrs.add(new NameValueAttr(attr.getName(), val));
 			}
 		}
-		this.setAttrs(routeAttrs.toArray(new NameValueAttr[routeAttrs.size()]));
+	}
+	
+	public void addAttribute(NameValueAttr attr) {
+		this.routeAttrs.add(attr);
 	}
 
 	public String getId() {

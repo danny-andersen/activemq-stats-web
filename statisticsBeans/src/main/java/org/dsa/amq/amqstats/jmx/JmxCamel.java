@@ -109,7 +109,7 @@ public class JmxCamel {
 		try {
 			attrs = this.mbeanServer.getAttributes(name, attributeNames);
 		} catch (Exception e) {
-			log.error("Could not retreive attributes of mbean: " + name, e);
+			log.error("Could not retrieve attributes of mbean: " + name, e);
 			return null;
 		}
 		if (attrs != null) {
@@ -118,26 +118,38 @@ public class JmxCamel {
 		return attrs;
 	}
 	
-	public void invokeCommand(String searchStr, String command) {
-		invokeCommand(searchStr, command, null, null);
+	public Object invokeCommand(String searchStr, String command) {
+		return invokeCommand(searchStr, command, null, null);
 	}
 	
-	public void invokeCommand(String searchStr, String command, Object[] params, String[] signature) {
+	public Object invokeCommand(String searchStr, String command, Object[] params, String[] signature) {
 		Set<ObjectName> names = getBeanNames(searchStr);
+		Object retObject = null;
 		if (names != null) {
 			for (ObjectName name : names) {
-				try {
-					log.debug(String.format("Invoking command %s on bean %s: ",command,name.getCanonicalName()));
-					this.mbeanServer.invoke(name, command, params, signature);
-				} catch (Exception e) {
-					log.error(String.format("Failed to invoke command %s on bean %s: ",command,name.getCanonicalName()), e);
-				}
+				retObject = invokeCommand(name, command, params, signature);
 			}
 		} else {
 			log.warn("Failed to find any matching beans to control with search str: " + searchStr);
 		}
+		return retObject;
 	}
 	
+	public Object invokeCommand(ObjectName name, String command) {
+		return invokeCommand(name, command, null, null);
+	}
+
+	public Object invokeCommand(ObjectName name, String command, Object[] params, String[] signature) {
+		Object retObject = null;
+		try {
+			log.debug(String.format("Invoking command %s on bean %s: ",command,name.getCanonicalName()));
+			retObject = this.mbeanServer.invoke(name, command, params, signature);
+		} catch (Exception e) {
+			log.error(String.format("Failed to invoke command %s on bean %s: ",command,name.getCanonicalName()), e);
+		}
+		return retObject;
+	}
+
 	public void registerMBean(Object object, ObjectName name) {
 		try {
 			this.mbeanServer.registerMBean(object, name);
