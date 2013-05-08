@@ -24,6 +24,8 @@ function showRouteProperties(id, tableId) {
 			//Add body to table
 			$(tableSelector).append(body);
 			$('#lastTime').html(new Date().toUTCString());
+			$('#refreshBtn').css({ cursor: 'pointer'});
+			$('body').css({ cursor: 'auto'});
 	});
 };
 
@@ -191,5 +193,7 @@ function showRoutes(filter, routeTable) {
 		$('#filterText').attr("data-source", JSON.stringify(filterData));
 		showRouteCount(results.length, on, off, countDiv$);
 		$('#lastTime').html(new Date().toUTCString());
+		$('#refreshBtn').css({ cursor: 'pointer'});
+		$('body').css({ cursor: 'auto'});
 	 });
 }

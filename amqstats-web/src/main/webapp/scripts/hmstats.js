@@ -48,7 +48,8 @@ $(document).ready(function() {
 		var tabSelector = addTab(tabNo, 'Route:' + id, "routeProp", id);
 		$(tabSelector).append($('#propertiesTemplate').html());
 		id = id.replace(/:/g, "-");
-		var tableId = "id-" + id.replace(".","_") + "-" + tabNo + "-table";
+//		var tableId = "id-" + id.replace(".","_") + "-" + tabNo + "-table";
+		var tableId = "id-" + id.replace(/\./g,"_") + "-" + tabNo + "-table";
 		$('table', tabSelector).attr('id', tableId);
 		showRouteProperties(id, tableId);
 		//Activate tab
@@ -64,7 +65,8 @@ $(document).ready(function() {
 		var tabSelector = addTab(tabNo, 'Queue:' + id, "queueProp", id);
 		$(tabSelector).append($('#propertiesTemplate').html());
 		id = id.replace(/:/g, "-");
-		var tableId = "id-" + id.replace(".","_") + "-" + tabNo + "-table";
+//		var tableId = "id-" + id.replace(".","_") + "-" + tabNo + "-table";
+		var tableId = "id-" + id.replace(/\./g,"_") + "-" + tabNo + "-table";
 		$('table', tabSelector).attr('id', tableId);
 		showQueueProperties(id, tableId);
 		//Activate tab
@@ -198,7 +200,8 @@ function liveUpdate() {
 };
 
 function refresh() {
-	$('body').css({ pointer: 'progress'});
+	$('#refreshBtn').css({ cursor: 'progress'});
+	$('body').css({ cursor: 'progress'});
 	var filter = $('.active.tab-pane').data('data-filter');
 	var filterType = $('.active.tab-pane').data('data-filtertype');
 	//Find active tab table

@@ -35,6 +35,8 @@ function showQueueProperties(id, tableId) {
 			$(tableSelector + ' > tbody').remove();
 			//Add body to table
 			$(tableSelector).append(body);
+			$('#refreshBtn').css({ cursor: 'pointer'});
+			$('body').css({ cursor: 'auto'});
 	});
 };
 
@@ -194,5 +196,7 @@ function showQueues(filter, queueTable) {
 		$('#filterText').attr("data-source", JSON.stringify(filterData));
 		showQueueCount(results.length, countDiv$);
 		$('#lastTime').html(new Date().toUTCString());
+		$('#refreshBtn').css({ cursor: 'pointer'});
+		$('body').css({ cursor: 'auto'});
 	 });
 }
