@@ -91,7 +91,7 @@ public class JmxCamel {
 					}
 				}
 			} catch (Exception e) {
-				log.warn("Failed to retrieve MBeanInfo for bean: " + name.getCanonicalName());
+				log.debug("Failed to retrieve MBeanInfo for bean: " + name.getCanonicalName());
 				return null;
 			}
 		}

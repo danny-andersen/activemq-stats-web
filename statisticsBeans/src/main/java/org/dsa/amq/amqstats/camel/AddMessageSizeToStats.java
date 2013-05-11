@@ -16,7 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import org.dsa.amq.amqstats.jmx.JmxCamel;
 import org.dsa.amq.amqstats.jmx.MessageSizeStatistics;
 
-public class AddMessageSizeToStats implements Processor {
+public class AddMessageSizeToStats {
 	private static final Log log = LogFactory.getLog(AddMessageSizeToStats.class);
 	private static final String FILE_LENGTH = "camelfilelength";
 
@@ -50,16 +50,17 @@ public class AddMessageSizeToStats implements Processor {
 					new String[]{"long"});
 		}
 	}
-
+	
 	@Handler
-	public void addMessage(File file) {
+	public void addFileSize(File file) {
 		long length = file.length();
 		log.debug("Got file length: " + length);
 		this.setSize(length);
 	}
 	
 	@Handler
-	public void process(Exchange exchange) throws Exception {
+	public void process(Exchange exchange) {
+		log.debug("process: start()");
 		Message message = exchange.getIn();
 		if (message == null) {
 			log.warn("Passed an exchange without an In message - cannot add stats");
@@ -96,5 +97,6 @@ public class AddMessageSizeToStats implements Processor {
 		} catch (Exception e) {
 			log.error("Caught exception processing exchange: ", e);
 		}
+		log.debug("process: end()");
 	}
 }

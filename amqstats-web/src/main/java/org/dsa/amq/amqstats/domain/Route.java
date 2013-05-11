@@ -122,9 +122,11 @@ public class Route {
 			if (attr.getName().compareToIgnoreCase(Route.ROUTE_ID) == 0) {
 				this.setId(val);
 			} else if (attr.getName().compareToIgnoreCase(Route.URI) == 0) {
-				this.uri = uriFactory.getUriEnrichment(val);
-				for (NameValueAttr nv : this.uri.getAttrs()) {
-					routeAttrs.add(nv);
+				if (val != null) {
+					this.uri = uriFactory.getUriEnrichment(val);
+					for (NameValueAttr nv : this.uri.getAttrs()) {
+						routeAttrs.add(nv);
+					}
 				}
 			} else {
 				routeAttrs.add(new NameValueAttr(attr.getName(), val));

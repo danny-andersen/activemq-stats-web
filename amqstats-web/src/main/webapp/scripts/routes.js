@@ -23,7 +23,11 @@ function showRouteProperties(id, tableId) {
 			$(tableSelector + ' > tbody').remove();
 			//Add body to table
 			$(tableSelector).append(body);
-			$('#lastTime').html(new Date().toUTCString());
+			var updateTime = new Date().toUTCString();
+			$('#lastTime').html(updateTime);
+			var tabId = '#' + $(tableSelector).parents('.tab-pane').attr('id');
+			$('a[href="' + tabId + '"]').data('lastUpdateTime', updateTime);
+			//Save tab update time in the tab
 			$('#refreshBtn').css({ cursor: 'pointer'});
 			$('body').css({ cursor: 'auto'});
 	});
@@ -192,7 +196,10 @@ function showRoutes(filter, routeTable) {
 		$(routeSel).append(bodyE);
 		$('#filterText').attr("data-source", JSON.stringify(filterData));
 		showRouteCount(results.length, on, off, countDiv$);
-		$('#lastTime').html(new Date().toUTCString());
+		var updateTime = new Date().toUTCString();
+		$('#lastTime').html(updateTime);
+		var tabId = '#' + $(routeSel).parents('.tab-pane').attr('id');
+		$('a[href="' + tabId + '"]').data('lastUpdateTime', updateTime);
 		$('#refreshBtn').css({ cursor: 'pointer'});
 		$('body').css({ cursor: 'auto'});
 	 });

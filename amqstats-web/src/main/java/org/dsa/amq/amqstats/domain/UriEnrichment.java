@@ -87,7 +87,7 @@ public class UriEnrichment {
 						});
 						this.backLog = files.length;
 					} else {
-						log.warn("Source directory specified in route does not exist: " + file.getAbsolutePath());
+						log.debug("Source directory specified in route does not exist: " + file.getAbsolutePath());
 					}
 				}
 			}

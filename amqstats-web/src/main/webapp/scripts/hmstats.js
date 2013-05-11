@@ -142,6 +142,11 @@ $(document).ready(function() {
 		return false;
 	});
 
+	$('.tabtab').live('click', function() {
+		$('#lastTime').html($(this).data('lastUpdateTime'));
+		return true;
+	});
+
 	$('#tab-remove').live('click', function() {
 		var tabSelector = $(this).closest('a').attr('href');
 		liEle = $(this).closest('li');
@@ -169,6 +174,7 @@ function addTab(tabName, tabTitle, filterType, filter) {
 	//Add new tab to the list of tabs
 	$('<li>').append($('<a>', {
 			href: tabSelector,
+			class: 'tabtab',
 			"data-toggle": 'tab',
 			html: tabTitle + " ",
 		}).append($('<i>', {

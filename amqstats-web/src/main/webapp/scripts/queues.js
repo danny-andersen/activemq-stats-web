@@ -35,6 +35,10 @@ function showQueueProperties(id, tableId) {
 			$(tableSelector + ' > tbody').remove();
 			//Add body to table
 			$(tableSelector).append(body);
+			var updateTime = new Date().toUTCString();
+			$('#lastTime').html(updateTime);
+			var tabId = '#' + $(tableSelector).parents('.tab-pane').attr('id');
+			$('a[href="' + tabId + '"]').data('lastUpdateTime', updateTime);
 			$('#refreshBtn').css({ cursor: 'pointer'});
 			$('body').css({ cursor: 'auto'});
 	});
@@ -195,7 +199,10 @@ function showQueues(filter, queueTable) {
 		$(queueSel).append(bodyE);
 		$('#filterText').attr("data-source", JSON.stringify(filterData));
 		showQueueCount(results.length, countDiv$);
-		$('#lastTime').html(new Date().toUTCString());
+		var updateTime = new Date().toUTCString();
+		$('#lastTime').html(updateTime);
+		var tabId = '#' + $(queueSel).parents('.tab-pane').attr('id');
+		$('a[href="' + tabId + '"]').data('lastUpdateTime', updateTime);
 		$('#refreshBtn').css({ cursor: 'pointer'});
 		$('body').css({ cursor: 'auto'});
 	 });
