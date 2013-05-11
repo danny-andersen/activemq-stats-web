@@ -42,7 +42,8 @@ $(document).ready(function() {
 
 	//Route clicked in table - show selected route properties in a new tab
 	$('.route').live('click', function() {
-		var id = $(this).attr('id');
+//		var id = $(this).parent().attr('id');
+		var id = $(this).html();
 		//Add a tab to show the route details
 		var tabNo = "tab" + hmstats.tabCount++;
 		var tabSelector = addTab(tabNo, 'Route:' + id, "routeProp", id);

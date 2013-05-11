@@ -20,7 +20,7 @@ public class RouteSummary {
 	
 	public RouteSummary(Route route) {
 		setId(route.getId());
-		NameValueAttr[] attrs = route.getAttrs();
+		NameValueAttr[] attrs = route.getAttrs(false);
 		for (NameValueAttr attr : attrs) {
 			if (attr == null || attr.name == null) {
 				continue;

@@ -75,10 +75,10 @@ function showRoutes(filter, routeTable) {
 		var on = 0, off = 0;
 		results.forEach(function(result) {
 			var rowE = $('<tr>', { 
-					class: 'route',
 					id: result.id});
 			rowE.append($('<td>').append($('<a>', { 
 					html: result.id,
+					class: 'route',
 					style : 'cursor:pointer',
 					title: 'Click to view all route properties'})));
 			filterData.push(result.id);

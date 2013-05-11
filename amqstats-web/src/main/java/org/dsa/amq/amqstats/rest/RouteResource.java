@@ -40,7 +40,7 @@ public class RouteResource {
 	public RouteSummary[] getAllRoutesStatus(			
 			@QueryParam("filter") String filter
 			) {
-		ArrayList<Route> routes = this.routeService.getAllRouteStatus(filter);
+		ArrayList<Route> routes = this.routeService.getAllRouteStatus(filter, false);
 		if (routes != null) {
 			log.debug("Got routes: " + routes.size());
 			RouteSummary[] summaries = new RouteSummary[routes.size()];
