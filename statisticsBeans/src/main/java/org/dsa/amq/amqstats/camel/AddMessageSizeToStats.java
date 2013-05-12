@@ -10,7 +10,6 @@ import javax.management.ObjectName;
 import org.apache.camel.Exchange;
 import org.apache.camel.Handler;
 import org.apache.camel.Message;
-import org.apache.camel.Processor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dsa.amq.amqstats.jmx.JmxCamel;
@@ -51,12 +50,12 @@ public class AddMessageSizeToStats {
 		}
 	}
 	
-	@Handler
-	public void addFileSize(File file) {
-		long length = file.length();
-		log.debug("Got file length: " + length);
-		this.setSize(length);
-	}
+//	@Handler
+//	public void addFileSize(File file) {
+//		long length = file.length();
+//		log.debug("Got file length: " + length);
+//		this.setSize(length);
+//	}
 	
 	@Handler
 	public void process(Exchange exchange) {
