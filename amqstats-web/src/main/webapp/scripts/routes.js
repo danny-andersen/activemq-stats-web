@@ -113,11 +113,11 @@ function showRoutes(filter, routeTable) {
 						},
 					})));
 			}
-			if (result.uri.indexOf("file:") == -1 && result.backLog != -1) {
+			if (result.sourceUri.indexOf("file:") == -1 && result.backLog != -1) {
 			 	//Route uri doesn't start with file and we have a non-negative backlog so assume a queue
-				var queueId = result.uri.substring(result.uri.indexOf("://") + 3, result.uri.length);
+				var queueId = result.sourceUri.substring(result.sourceUri.indexOf("://") + 3, result.sourceUri.length);
 				rowE.append($('<td>').append($('<a>', { 
-					html: result.uri,
+					html: result.sourceUri,
 					style : 'cursor:pointer',
 					class: 'queue',
 					title: 'Click to view all queue properties',
@@ -125,9 +125,12 @@ function showRoutes(filter, routeTable) {
 				})));
 			} else {
 				rowE.append($('<td>', { 
-					html: result.uri,
+					html: result.sourceUri,
 					}));
 			}
+			rowE.append($('<td>', {
+						html: result.destUri,
+					}));
 			var backLogBadge = 'badge badge-success';
 			if (result.backLog > 0) {
 				backLogBadge = 'badge badge-important';

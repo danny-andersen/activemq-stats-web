@@ -1,10 +1,14 @@
 package org.dsa.amq.amqstats.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RouteSummary {
 	public static final String ID = "id";
 	private String id;
 	private String state;
-	private String uri;
+	private String sourceUri;
+	private List<String> destUris;
 	private String backLog;
 	private String success;
 	private String total;
@@ -28,7 +32,9 @@ public class RouteSummary {
 			if (attr.name.compareTo(Route.STATE) == 0) {
 				setState(attr.value);
 			} else if (attr.name.compareTo(Route.SHORT_URI) == 0) {
-				setUri(attr.value);
+				setSourceUri(attr.value);
+			} else if (attr.name.startsWith(Route.DEST_URI)) {
+				addDestUri(attr.value);
 			} else if (attr.name.compareTo(Route.BACKLOG) == 0) {
 				setBackLog(attr.value);
 			} else if (attr.name.compareTo(Route.SUCCESS) == 0) {
@@ -61,12 +67,29 @@ public class RouteSummary {
 	public void setState(String state) {
 		this.state = state;
 	}
-	public String getUri() {
-		return uri;
+	public String getSourceUri() {
+		return sourceUri;
 	}
-	public void setUri(String endPointUri) {
-		this.uri = endPointUri;
+	public void setSourceUri(String endPointUri) {
+		this.sourceUri = endPointUri;
 	}
+
+	public String getDestUri() {
+		StringBuffer sb = new StringBuffer();
+		for (String uri : this.destUris) {
+			sb.append(uri);
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
+	
+	public void addDestUri(String endPointUri) {
+		if (this.destUris == null) {
+			this.destUris = new ArrayList<String>();
+		}
+		this.destUris.add(endPointUri);
+	}
+	
 	public String getLastTime() {
 		return lastTime;
 	}

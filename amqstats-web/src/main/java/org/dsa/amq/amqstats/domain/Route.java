@@ -29,7 +29,7 @@ public class Route {
 	private static final String ROUTE_ATTR = "routeXml";
 	private static final String TO_START = "<to uri=\"";
 	private static final String TO_END = "\"";
-	private static final String DEST_URI = "uri-dest";
+	public static final String DEST_URI = "uri-dest";
 
 	public static final String ROUTE_ID = "RouteId";
 	public static final String URI = "EndpointUri";
