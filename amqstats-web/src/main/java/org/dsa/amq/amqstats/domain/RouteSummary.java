@@ -75,12 +75,16 @@ public class RouteSummary {
 	}
 
 	public String getDestUri() {
-		StringBuffer sb = new StringBuffer();
-		for (String uri : this.destUris) {
-			sb.append(uri);
-			sb.append("\n");
+		if (this.destUris != null) {
+			StringBuffer sb = new StringBuffer();
+			for (String uri : this.destUris) {
+				sb.append(uri);
+				sb.append("\n");
+			}
+			return sb.toString();
+		} else {
+			return null;
 		}
-		return sb.toString();
 	}
 	
 	public void addDestUri(String endPointUri) {

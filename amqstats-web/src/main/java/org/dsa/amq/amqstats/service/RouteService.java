@@ -24,7 +24,7 @@ public class RouteService {
 	@Autowired
 	private RouteFactoryService routeFactory;
 
-	public ArrayList<Route> getAllRouteStatus(String filter, boolean detailed) {
+	public ArrayList<Route> getAllRouteStatus(String filter, boolean detailed, boolean withBackLog) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(ROUTE_NAME_QUERY);
 		if (filter != null && !filter.isEmpty()) {
@@ -40,7 +40,8 @@ public class RouteService {
 		for (ObjectName name : routeNames) {
 			log.trace("Got route: " + name.getCanonicalName());
 			AttributeList attrs = this.jmxCamel.getAttributes(name, null);
-			Route route = routeFactory.getRoute(attrs);
+			Route route = routeFactory.getRoute();
+			route.addAttrs(attrs, withBackLog);
 			try {
 				attrs = this.jmxCamel.getAttributes(
 						new ObjectName(MessageSizeStatistics.MESSAGESTATS_MBEAN
@@ -64,7 +65,7 @@ public class RouteService {
 	}
 
 	public Route getDetailedRouteStatus(String id) {
-		ArrayList<Route> routes = getAllRouteStatus(id, true);
+		ArrayList<Route> routes = getAllRouteStatus(id, true, true);
 		log.debug(String.format("Looked for route: %s and got %d routes", id,
 				routes.size()));
 		return routes.get(0);

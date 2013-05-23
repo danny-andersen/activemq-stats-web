@@ -25,23 +25,21 @@ public class UriEnrichment {
 	}
 	
 	public NameValueAttr[] getAttrs() {
-		return new NameValueAttr[] { 
-				new NameValueAttr(Route.SHORT_URI, getUri()), 
-				new NameValueAttr(Route.URI, getFullUri()), 
-				new NameValueAttr(Route.BACKLOG, getBackLogAsString()), 
-				};
+		return getAttrs(true);
 	}
 
-	public int getBackLog() {
-		return backLog;
+	public NameValueAttr[] getAttrs(boolean withBacklog) {
+		NameValueAttr[] nv = new NameValueAttr[3];
+		nv[0] = new NameValueAttr(Route.SHORT_URI, getUri()); 
+		nv[1] = new NameValueAttr(Route.URI, getFullUri());
+		if (withBacklog) {
+			nv[2] = new NameValueAttr(Route.BACKLOG, getBackLogAsString());
+		};
+		return nv;
 	}
-	
+
 	public String getBackLogAsString() {
-		return String.valueOf(this.backLog);		
-	}
-
-	public void setBackLog(int backLog) {
-		this.backLog = backLog;
+		return String.valueOf(getBackLog());		
 	}
 
 	public String getUri() {
@@ -56,6 +54,9 @@ public class UriEnrichment {
 		} else {
 			this.uri = uri;
 		}
+	}
+	
+	private int getBackLog() {
 		// If its a file uri then look at how many files are in the source
 		// directory
 		if (this.uri.startsWith(FILE_PREFIX, 0)) {
@@ -111,6 +112,7 @@ public class UriEnrichment {
 				}
 			}
 		}
+		return this.backLog;
 	}
 
 	public String getFullUri() {

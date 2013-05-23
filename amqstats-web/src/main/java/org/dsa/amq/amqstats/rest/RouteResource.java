@@ -2,7 +2,7 @@ package org.dsa.amq.amqstats.rest;
 
 import java.util.ArrayList;
 
-
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -38,9 +38,10 @@ public class RouteResource {
 	@GET
 	@Path("/summary")
 	public RouteSummary[] getAllRoutesStatus(			
-			@QueryParam("filter") String filter
+			@QueryParam("filter") String filter,
+			@DefaultValue("true") @QueryParam("backlog") boolean withBackLog
 			) {
-		ArrayList<Route> routes = this.routeService.getAllRouteStatus(filter, true);
+		ArrayList<Route> routes = this.routeService.getAllRouteStatus(filter, false, withBackLog);
 		if (routes != null) {
 			log.debug("Got routes: " + routes.size());
 			RouteSummary[] summaries = new RouteSummary[routes.size()];

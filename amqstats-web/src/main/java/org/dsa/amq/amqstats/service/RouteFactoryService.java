@@ -14,4 +14,8 @@ public class RouteFactoryService {
 	public Route getRoute(AttributeList attrs) {
 		return new Route(uriFactory, attrs);
 	}
+
+	public Route getRoute() {
+		return new Route(uriFactory);
+	}
 }

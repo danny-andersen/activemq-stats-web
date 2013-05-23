@@ -95,26 +95,32 @@ public class JmxCamel {
 				return null;
 			}
 		}
-		SortedSet<String> sortedNames = new TreeSet<String>();
-		for (String a: attributeNames) {
-			if (a != null && !a.isEmpty()) {
-				sortedNames.add(a);
+		if (attributeNames != null) {
+			SortedSet<String> sortedNames = new TreeSet<String>();
+			for (String a: attributeNames) {
+				if (a != null && !a.isEmpty()) {
+					sortedNames.add(a);
+				}
+			}
+			attributeNames = new String[sortedNames.size()];
+			int i = 0;
+			for (String a : sortedNames) {
+				attributeNames[i++] = a;
+			}
+			try {
+				attrs = this.mbeanServer.getAttributes(name, attributeNames);
+			} catch (Exception e) {
+				log.error("Could not retrieve attributes of mbean: " + name, e);
+				return null;
 			}
 		}
-		attributeNames = new String[sortedNames.size()];
-		int i = 0;
-		for (String a : sortedNames) {
-			attributeNames[i++] = a;
+		if (log.isTraceEnabled()) {
+			if (attrs != null) {
+				log.trace("Retreived attrs: " + attrs.size());
+			} else {
+				log.trace("No attrs retreived");
+			}
 		}
-		try {
-			attrs = this.mbeanServer.getAttributes(name, attributeNames);
-		} catch (Exception e) {
-			log.error("Could not retrieve attributes of mbean: " + name, e);
-			return null;
-		}
-		if (attrs != null) {
-			log.trace("Retreived attrs: " + attrs.size());
-		}		
 		return attrs;
 	}
 	
@@ -142,7 +148,9 @@ public class JmxCamel {
 	public Object invokeCommand(ObjectName name, String command, Object[] params, String[] signature) {
 		Object retObject = null;
 		try {
-			log.debug(String.format("Invoking command %s on bean %s: ",command,name.getCanonicalName()));
+			if (log.isDebugEnabled()) {
+				log.debug(String.format("Invoking command %s on bean %s: ",command,name.getCanonicalName()));
+			}
 			retObject = this.mbeanServer.invoke(name, command, params, signature);
 		} catch (Exception e) {
 			log.error(String.format("Failed to invoke command %s on bean %s: ",command,name.getCanonicalName()), e);

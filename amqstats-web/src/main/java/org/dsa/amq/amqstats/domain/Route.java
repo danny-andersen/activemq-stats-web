@@ -29,10 +29,16 @@ public class Route {
 	private static final String ROUTE_ATTR = "routeXml";
 	private static final String TO_START = "<to uri=\"";
 	private static final String TO_END = "\"";
+	private static final String SEND_TO = "sendTo(Endpoint[";
+	private static final String SEND_TO_END = "]";
+//	private static final Pattern SIMPLE_EXT_PATTERN = Pattern.compile("when Simple.*file.*ext.*\"");
+	private static final Pattern SIMPLE_EXT_PATTERN = Pattern.compile("when Simple");
+
 	public static final String DEST_URI = "uri-dest";
 
 	public static final String ROUTE_ID = "RouteId";
 	public static final String URI = "EndpointUri";
+	public static final String DESC = "Description";
 	public static final String SUCCESS = "ExchangesCompleted";
 	public static final String TOTAL = "ExchangesTotal";
 	public static final String FAILED = "ExchangesFailed";
@@ -61,7 +67,13 @@ public class Route {
 
 	public Route(UriEnrichmentFactoryService uriFactory, AttributeList attrs) {
 		this.uriFactory = uriFactory;
-		addAttrs(attrs);
+		if (attrs != null) {
+			addAttrs(attrs);
+		}
+	}
+	
+	public Route(UriEnrichmentFactoryService uriFactory) {
+		this.uriFactory = uriFactory;
 	}
 	
 	public NameValueAttr[] getAttrs() {
@@ -112,6 +124,10 @@ public class Route {
 	}
 
 	public void addAttrs(AttributeList attrs) {
+		this.addAttrs(attrs, true);
+	}
+
+	public void addAttrs(AttributeList attrs, boolean withBackLog) {
 		if (this.routeAttrs == null) {
 			this.routeAttrs = new ArrayList<NameValueAttr>();
 		}
@@ -124,10 +140,14 @@ public class Route {
 			} else if (attr.getName().compareToIgnoreCase(Route.URI) == 0) {
 				if (val != null) {
 					this.uri = uriFactory.getUriEnrichment(val);
-					for (NameValueAttr nv : this.uri.getAttrs()) {
-						routeAttrs.add(nv);
+					for (NameValueAttr nv : this.uri.getAttrs(withBackLog)) {
+						if (nv != null) {
+							routeAttrs.add(nv);
+						}
 					}
 				}
+			} else if (attr.getName().compareToIgnoreCase(Route.DESC) == 0) {
+				parseDescription(val);
 			} else {
 				routeAttrs.add(new NameValueAttr(attr.getName(), val));
 			}
@@ -148,22 +168,57 @@ public class Route {
 
 	public void setRouteXml(String routeXml) {
 		// Parse xml to extract <to> endpoints
-		int count = 1;
-		int beginIndex = 0;
-		while (beginIndex != -1) {
-			beginIndex = routeXml.indexOf(TO_START, beginIndex);
-			if (beginIndex != -1) {
-				beginIndex += TO_START.length();
-				int endIndex = routeXml.indexOf(TO_END, beginIndex);
-				if (endIndex != -1) {
-					String to = routeXml.substring(beginIndex, endIndex);
-					this.addAttribute(new NameValueAttr(DEST_URI + count++, to));
-				}
-			}
-		}
+//		int count = 1;
+//		int beginIndex = 0;
+//		while (beginIndex != -1) {
+//			beginIndex = routeXml.indexOf(TO_START, beginIndex);
+//			if (beginIndex != -1) {
+//				beginIndex += TO_START.length();
+//				int endIndex = routeXml.indexOf(TO_END, beginIndex);
+//				if (endIndex != -1) {
+//					String to = routeXml.substring(beginIndex, endIndex);
+//					this.addAttribute(new NameValueAttr(DEST_URI + count++, to));
+//				}
+//			}
+//		}
 		this.addAttribute(new NameValueAttr(ROUTE_ATTR, formatXml(routeXml)));
 	}
+	
+	//EventDrivenConsumerRoute[Endpoint[file:///home/danny/ActiveMQ/fromdir] -> Instrumentation:
+	//route[DelegateAsync[UnitOfWork(RouteContextProcessor[Channel[choice{
+	//when Simple: ${file:ext} == "fred": Channel[sendTo(Endpoint[file:///home/danny/ActiveMQ/filterDir])], when Simple: ${file:ext} == "joe": Channel[sendTo(Endpoint[file:///home/danny/ActiveMQ/filterDir])], when Simple: ${file:ext} == "jane": Channel[sendTo(Endpoint[file:///home/danny/ActiveMQ/filterDir])], when Simple: ${file:onlyname} == ${file:onlyname.noext}: Channel[sendTo(Endpoint[file:///home/danny/ActiveMQ/filterNoExtDir])], otherwise: Channel[sendTo(Endpoint[file:///home/danny/ActiveMQ/todir])]}]])]]]
 
+	private void parseDescription(String desc) {
+		int count = 1;
+		int start = desc.indexOf(SEND_TO);
+		Matcher m = SIMPLE_EXT_PATTERN.matcher(desc);
+		String filter = null;
+		while (start != -1) {
+			start += SEND_TO.length();
+			int end = desc.indexOf(SEND_TO_END, start);
+			if (end != -1) {
+				if (m.find(start) && m.end() < end) {
+					int filterEnd = desc.indexOf("\"", m.end());
+					if (filterEnd != -1 && filterEnd < end) {
+						filter = desc.substring(m.end(), filterEnd);
+					}
+					log.trace("Got a when clause associated with a file ext: " + filter);
+				}
+				String to = desc.substring(start, end);
+				int params = to.indexOf("?");
+				if (params != -1) {
+					to = to.substring(0, params);
+				}
+				if (filter != null) {
+					to = String.format("%s:%s", filter, to);
+					filter = null;
+				}
+				this.addAttribute(new NameValueAttr(DEST_URI + count++, to));
+			}
+			start = desc.indexOf(SEND_TO, end);
+		}
+	}
+	
 	private String formatXml(String xml) {
 		try {
 			Transformer serializer = SAXTransformerFactory.newInstance()

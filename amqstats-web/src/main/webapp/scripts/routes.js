@@ -128,9 +128,13 @@ function showRoutes(filter, routeTable) {
 					html: result.sourceUri,
 					}));
 			}
+			var brStr = null;
+			if (result.destUri != null) {
+				brStr = result.destUri.replace(/\n/g, "<br>");
+			}	
 			rowE.append($('<td>', {
-						html: result.destUri,
-					}));
+						html: brStr,
+			}));
 			var backLogBadge = 'badge badge-success';
 			if (result.backLog > 0) {
 				backLogBadge = 'badge badge-important';

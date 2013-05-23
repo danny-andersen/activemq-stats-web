@@ -31,7 +31,7 @@ $(document).ready(function() {
 		$(tabSelector).append($('#routesTableTemplate').html());
 		var filterTableId = tabNo + "-table";
 		$('table', tabSelector).attr('id', filterTableId);
-		var filterParam = {filter: filter};
+		var filterParam = {filter: filter, backlog: $('#withBackLog').is(':checked')};
 		//Find routes and add to table
 		showRoutes(filterParam, filterTableId);
 		//Activate tab
@@ -166,7 +166,8 @@ function addDefaultTab() {
 	$(tabSelector).append($('#routesTableTemplate').html());
 	$('table', tabSelector).attr('id', hmstats.defaultTable);
 	$('#tabList a[href="' + tabSelector + '"]').tab('show');
-	showRoutes(null, hmstats.defaultTable);
+	var params = {filter: null, backlog: $('#withBackLog').is(':checked')}
+	showRoutes(params, hmstats.defaultTable);
 };
 
 function addTab(tabName, tabTitle, filterType, filter) {
@@ -214,7 +215,7 @@ function refresh() {
 	//Find active tab table
 	var tableId = $('.active.tab-pane > table').attr('id');
 	if (filterType == 'routes') {
-		showRoutes({filter: filter}, tableId);
+		showRoutes({filter: filter, backlog: $('#withBackLog').is(':checked')}, tableId);
 	} else if (filterType == 'queues') {
 		showQueues(filter, tableId);
 	} else if (filterType == 'routeProp') {
