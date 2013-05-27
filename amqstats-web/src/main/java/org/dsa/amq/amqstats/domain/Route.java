@@ -4,9 +4,15 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.management.Attribute;
 import javax.management.AttributeList;
@@ -16,8 +22,6 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.stream.StreamResult;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,8 +35,8 @@ public class Route {
 	private static final String TO_END = "\"";
 	private static final String SEND_TO = "sendTo(Endpoint[";
 	private static final String SEND_TO_END = "]";
-//	private static final Pattern SIMPLE_EXT_PATTERN = Pattern.compile("when Simple.*file.*ext.*\"");
-	private static final Pattern SIMPLE_EXT_PATTERN = Pattern.compile("when Simple");
+	private static final Pattern SIMPLE_EXT_PATTERN = Pattern.compile("when Simple: .*file.*ext.* \"");
+	private static final String SIMPLE_END = "\":";
 
 	public static final String DEST_URI = "uri-dest";
 
@@ -81,10 +85,40 @@ public class Route {
 	}
 
 	public NameValueAttr[] getAttrs(boolean sorted) {
+		Map<String, NameValueAttr> nvMap = new HashMap<String, NameValueAttr>();
+		Set<NameValueAttr> dupeValues = new HashSet<NameValueAttr>();
+		for (NameValueAttr nv : this.routeAttrs) {
+			//Combine filters of same destinations
+			if (nvMap.containsKey(nv.value)) {
+				if (nv.name.startsWith(DEST_URI)) {
+					//Combine filter
+					NameValueAttr exist = nvMap.get(nv.value);
+					if (exist.filter == null) {
+						exist.filter = nv.filter;
+					} else if (nv.filter != null) {
+						exist.filter += "," + nv.filter;
+					}
+				} else {
+					dupeValues.add(nv);
+				}
+			} else {
+				nvMap.put(nv.value, nv);
+			}
+		}
 		if (!sorted) {
-			NameValueAttr[] attrs = routeAttrs
-					.toArray(new NameValueAttr[routeAttrs.size()]);
-			return attrs;
+			NameValueAttr[] attributes = new NameValueAttr[nvMap.size() + dupeValues.size()];
+			int i = 0;
+			for (NameValueAttr a : nvMap.values()) {
+				if (a.filter == null) {
+					attributes[i++] = a;
+				} else {
+					attributes[i++] = new NameValueAttr(a.name, a.filter + ";" + a.value);
+				}
+			}
+			for (NameValueAttr a : dupeValues) {
+				attributes[i++] = a;
+			}
+			return attributes;
 		} else {
 			final Pattern uri = Pattern.compile("uri-.*");
 			SortedSet<NameValueAttr> sortedNames = new TreeSet<NameValueAttr>(
@@ -109,7 +143,12 @@ public class Route {
 						}
 					});
 
-			for (NameValueAttr attr : this.routeAttrs) {
+			for (NameValueAttr attr : nvMap.values()) {
+				if (attr != null) {
+					sortedNames.add(attr);
+				}
+			}
+			for (NameValueAttr attr : dupeValues) {
 				if (attr != null) {
 					sortedNames.add(attr);
 				}
@@ -117,7 +156,11 @@ public class Route {
 			NameValueAttr[] attributes = new NameValueAttr[sortedNames.size()];
 			int i = 0;
 			for (NameValueAttr a : sortedNames) {
-				attributes[i++] = a;
+				if (a.filter == null) {
+					attributes[i++] = a;
+				} else {
+					attributes[i++] = new NameValueAttr(a.name, a.filter + ":" + a.value);
+				}
 			}
 			return attributes;
 		}
@@ -128,9 +171,6 @@ public class Route {
 	}
 
 	public void addAttrs(AttributeList attrs, boolean withBackLog) {
-		if (this.routeAttrs == null) {
-			this.routeAttrs = new ArrayList<NameValueAttr>();
-		}
 		for (Attribute attr : attrs.asList()) {
 			String val = attr.getValue() != null ? attr.getValue().toString()
 					: null;
@@ -142,19 +182,22 @@ public class Route {
 					this.uri = uriFactory.getUriEnrichment(val);
 					for (NameValueAttr nv : this.uri.getAttrs(withBackLog)) {
 						if (nv != null) {
-							routeAttrs.add(nv);
+							this.addAttribute(nv);
 						}
 					}
 				}
 			} else if (attr.getName().compareToIgnoreCase(Route.DESC) == 0) {
 				parseDescription(val);
 			} else {
-				routeAttrs.add(new NameValueAttr(attr.getName(), val));
+				this.addAttribute(new NameValueAttr(attr.getName(), val));
 			}
 		}
 	}
 
 	public void addAttribute(NameValueAttr attr) {
+		if (this.routeAttrs == null) {
+			this.routeAttrs = new ArrayList<NameValueAttr>();
+		}
 		this.routeAttrs.add(attr);
 	}
 
@@ -190,32 +233,33 @@ public class Route {
 
 	private void parseDescription(String desc) {
 		int count = 1;
-		int start = desc.indexOf(SEND_TO);
+		int sendToEnd = 0;
+		int sendToStart = desc.indexOf(SEND_TO);
 		Matcher m = SIMPLE_EXT_PATTERN.matcher(desc);
-		String filter = null;
-		while (start != -1) {
-			start += SEND_TO.length();
-			int end = desc.indexOf(SEND_TO_END, start);
-			if (end != -1) {
-				if (m.find(start) && m.end() < end) {
-					int filterEnd = desc.indexOf("\"", m.end());
-					if (filterEnd != -1 && filterEnd < end) {
-						filter = desc.substring(m.end(), filterEnd);
-					}
+		while (sendToStart != -1) {
+			String filter = null;
+			int filterEnd = desc.indexOf(SIMPLE_END, sendToEnd);
+			if (filterEnd != -1)  {
+				m.region(sendToEnd, filterEnd);
+				if (m.find()) {
+					int filterStart = m.end();
+					if (filterStart < sendToStart) {
+							filter = desc.substring(filterStart, filterEnd);
+					}	
 					log.trace("Got a when clause associated with a file ext: " + filter);
 				}
-				String to = desc.substring(start, end);
+			}
+			sendToStart += SEND_TO.length();
+			sendToEnd = desc.indexOf(SEND_TO_END, sendToStart);
+			if (sendToEnd != -1) {
+				String to = desc.substring(sendToStart, sendToEnd);
 				int params = to.indexOf("?");
 				if (params != -1) {
 					to = to.substring(0, params);
 				}
-				if (filter != null) {
-					to = String.format("%s:%s", filter, to);
-					filter = null;
-				}
-				this.addAttribute(new NameValueAttr(DEST_URI + count++, to));
+				this.addAttribute(new NameValueAttr(DEST_URI + count++, to, filter));
 			}
-			start = desc.indexOf(SEND_TO, end);
+			sendToStart = desc.indexOf(SEND_TO, sendToEnd);
 		}
 	}
 	
