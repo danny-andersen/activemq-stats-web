@@ -98,6 +98,10 @@ function showBrokerProperties(tableId) {
 			$(tableSelector + ' > tbody').remove();
 			//Add body to table
 			$(tableSelector).append(body);
+			var updateTime = new Date().toUTCString();
+			$('#lastTime').html(updateTime);
+			var tabId = '#' + $(tableSelector).parents('.tab-pane').attr('id');
+			$('a[href="' + tabId + '"]').data('lastUpdateTime', updateTime);
 	});
 };
 	

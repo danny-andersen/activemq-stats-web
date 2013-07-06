@@ -112,6 +112,7 @@ public class Route {
 				if (a.filter == null) {
 					attributes[i++] = a;
 				} else {
+					//Add filter to start of destination
 					attributes[i++] = new NameValueAttr(a.name, a.filter + ";" + a.value);
 				}
 			}
